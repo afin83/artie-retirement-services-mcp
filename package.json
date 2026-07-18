@@ -1,0 +1,14 @@
+{
+  "name": "artie-retirement-services-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Synthetic ARTie Retirement Services MCP demo for ChatGPT.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test:client": "node test-client.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
