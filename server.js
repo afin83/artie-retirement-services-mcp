@@ -106,6 +106,20 @@ const tools = [
       additionalProperties: false,
     },
   },
+  {
+    name: "compare_full_time_vs_part_time_at_60",
+    description: "Use this when the member asks what happens if they go part-time next year and retire at 60. ARTie Retirement Guide compares the full-time projection with a default part-time scenario of 60% salary from age 59 to retirement at 60.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        partTimeSalaryPercent: {
+          type: "number",
+          description: "Optional part-time salary as a decimal. Defaults to 0.6.",
+        },
+      },
+      additionalProperties: false,
+    },
+  },
 ];
 
 function money(value) {
@@ -214,6 +228,30 @@ function callTool(name, args = {}) {
         projectedBalance,
         balanceDifference,
         estimatedAnnualIncome,
+        guidance: RESPONSE_GUIDANCE,
+      }
+    );
+  }
+
+  if (name === "compare_full_time_vs_part_time_at_60") {
+    const partTimeSalaryPercent = Number(args.partTimeSalaryPercent || 0.6);
+    const fullTime = callTool("run_retirement_projection", { retirementAge: 60 })
+      .structuredContent;
+    const partTime = callTool("model_part_time_transition", {
+      partTimeSalaryPercent,
+      startAge: 59,
+      retirementAge: 60,
+    }).structuredContent;
+    const incomeDifference =
+      partTime.estimatedAnnualIncome - fullTime.estimatedAnnualIncome;
+
+    return textResult(
+      `${SERVICE_DISPLAY_NAME} compared two synthetic scenarios for ${member.name}. If she keeps working full-time to 60, the projected balance is ${money(fullTime.projectedBalance)} and estimated annual income is ${money(fullTime.estimatedAnnualIncome)}. If she moves to ${(partTimeSalaryPercent * 100).toFixed(0)}% salary next year and retires at 60, the projected balance is ${money(partTime.projectedBalance)} and estimated annual income is ${money(partTime.estimatedAnnualIncome)}. The part-time scenario is about ${money(Math.abs(partTime.balanceDifference))} lower at retirement and about ${money(Math.abs(incomeDifference))} lower per year. Plain English: going part-time next year probably does not break the retirement-at-60 plan, but it slightly reduces the buffer. ${DEMO_BOUNDARY}`,
+      {
+        fullTime,
+        partTime,
+        balanceDifference: partTime.balanceDifference,
+        incomeDifference,
         guidance: RESPONSE_GUIDANCE,
       }
     );

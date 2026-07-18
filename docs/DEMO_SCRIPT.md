@@ -21,6 +21,8 @@ Using ARTie Retirement Guide, what happens if I go part-time next year and retir
 
 Expected behaviour: ARTie Retirement Guide should model a simple default scenario if the member does not provide exact part-time salary or contribution assumptions.
 
+The connector includes a dedicated comparison tool for this prompt, so the answer should not say ARTie cannot model part-time.
+
 ```text
 Using ARTie Retirement Guide, should I review my insurance before I retire?
 ```

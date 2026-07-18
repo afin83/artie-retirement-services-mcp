@@ -49,6 +49,7 @@ The current demo member is:
 - `explain_insurance`
 - `book_adviser`
 - `model_part_time_transition`
+- `compare_full_time_vs_part_time_at_60`
 
 `model_part_time_transition` accepts optional inputs. If omitted, it assumes part-time starts next year at 60% salary and full retirement happens at the member's target retirement age.
 
