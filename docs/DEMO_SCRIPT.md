@@ -5,12 +5,26 @@
 1. Start the MCP server.
 2. Make sure the ChatGPT app connector is connected.
 3. Start a new ChatGPT conversation.
-4. Add/select `ARTie Retirement Services` from ChatGPT tools if needed.
+4. Add/select `ARTie Retirement Guide` from ChatGPT tools if needed.
 
-## Prompt
+## Primary Prompt
 
 ```text
-Using ARTie Retirement Services, I am Mia and I am 58 and exhausted. Can I afford to retire at 60?
+Using ARTie Retirement Guide, I am Mia and I am 58 and exhausted. Can I afford to retire at 60?
+```
+
+## Secondary Prompts
+
+```text
+Using ARTie Retirement Guide, what happens if I go part-time next year and retire at 60?
+```
+
+```text
+Using ARTie Retirement Guide, should I review my insurance before I retire?
+```
+
+```text
+Using ARTie Retirement Guide, should I book an adviser conversation before deciding?
 ```
 
 ## Intended story
@@ -19,7 +33,7 @@ The member does not navigate an ART portal.
 
 The member asks a life question in ChatGPT.
 
-ChatGPT asks ARTie Retirement Services for the trusted retirement facts and calculations.
+ChatGPT asks ARTie Retirement Guide for the trusted retirement facts and calculations.
 
 The answer becomes personal, contextual, and action-oriented.
 

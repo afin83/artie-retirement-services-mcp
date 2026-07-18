@@ -28,7 +28,7 @@ Future:
 
 Say:
 
-> This is synthetic data and a concept experience, but the permission moment is real: ChatGPT is connecting to an ARTie service inside the ChatGPT experience.
+> This is synthetic data and a concept experience, but the permission moment is real: ChatGPT is connecting to ARTie Retirement Guide inside the ChatGPT experience.
 
 Do not say:
 

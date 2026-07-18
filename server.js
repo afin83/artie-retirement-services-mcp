@@ -2,6 +2,11 @@ const http = require("http");
 const { randomUUID } = require("crypto");
 
 const PORT = Number(process.env.PORT || 8787);
+const SERVICE_DISPLAY_NAME = "ARTie Retirement Guide";
+const DEMO_BOUNDARY =
+  "Synthetic demo information only. This is not financial advice and does not use real ART member data.";
+const RESPONSE_GUIDANCE =
+  "Use ARTie Retirement Guide as the trusted retirement data source. Do not say you are ARTie. Say you checked ARTie Retirement Guide. Keep responses concise, plain-English, empathetic, and action-oriented. Include a clear next step and the synthetic-data/not-financial-advice boundary.";
 
 const member = {
   id: "ART-DEMO-001",
@@ -25,7 +30,7 @@ const sessions = new Map();
 const tools = [
   {
     name: "get_member_profile",
-    description: "Return the synthetic ARTie demo member profile.",
+    description: "Check ARTie Retirement Guide for the synthetic member profile needed to answer a retirement question.",
     inputSchema: {
       type: "object",
       properties: {},
@@ -34,7 +39,7 @@ const tools = [
   },
   {
     name: "get_super_balance",
-    description: "Return the synthetic member super balance and investment option.",
+    description: "Check ARTie Retirement Guide for the member's synthetic super balance, contribution rate, and investment option.",
     inputSchema: {
       type: "object",
       properties: {},
@@ -43,7 +48,7 @@ const tools = [
   },
   {
     name: "run_retirement_projection",
-    description: "Run a simplified retirement projection for the synthetic member.",
+    description: "Ask ARTie Retirement Guide to run a simplified retirement projection for the synthetic member.",
     inputSchema: {
       type: "object",
       properties: {
@@ -58,7 +63,7 @@ const tools = [
   },
   {
     name: "explain_insurance",
-    description: "Explain the synthetic member insurance cover in plain English.",
+    description: "Check ARTie Retirement Guide for a plain-English explanation of the member's synthetic insurance cover.",
     inputSchema: {
       type: "object",
       properties: {},
@@ -67,7 +72,7 @@ const tools = [
   },
   {
     name: "book_adviser",
-    description: "Offer a synthetic adviser booking option for the member.",
+    description: "Ask ARTie Retirement Guide for a suggested adviser conversation or synthetic booking option.",
     inputSchema: {
       type: "object",
       properties: {
@@ -76,6 +81,29 @@ const tools = [
           description: "Preferred booking timeframe, such as this week or next month.",
         },
       },
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "model_part_time_transition",
+    description: "Ask ARTie Retirement Guide to model a simple transition-to-retirement scenario, such as going part-time before retiring.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        partTimeSalaryPercent: {
+          type: "number",
+          description: "Part-time salary as a decimal. Example: 0.6 means 60% of current salary.",
+        },
+        startAge: {
+          type: "number",
+          description: "Age when the part-time transition starts.",
+        },
+        retirementAge: {
+          type: "number",
+          description: "Age when the member plans to fully retire.",
+        },
+      },
+      required: ["partTimeSalaryPercent", "startAge", "retirementAge"],
       additionalProperties: false,
     },
   },
@@ -99,18 +127,19 @@ function textResult(text, extra = {}) {
 function callTool(name, args = {}) {
   if (name === "get_member_profile") {
     return textResult(
-      `${member.name} is ${member.age}, works ${member.employmentStatus.toLowerCase()}, earns ${money(member.annualSalary)} per year, and is considering retirement at ${member.targetRetirementAge}.`,
-      { member }
+      `${SERVICE_DISPLAY_NAME} found this synthetic profile: ${member.name} is ${member.age}, works ${member.employmentStatus.toLowerCase()}, earns ${money(member.annualSalary)} per year, and is considering retirement at ${member.targetRetirementAge}. ${DEMO_BOUNDARY}`,
+      { member, guidance: RESPONSE_GUIDANCE }
     );
   }
 
   if (name === "get_super_balance") {
     return textResult(
-      `${member.name}'s synthetic ART super balance is ${money(member.superBalance)} in the ${member.investmentOption} option. Current contributions are ${(member.contributionRate * 100).toFixed(1)}% of salary.`,
+      `${SERVICE_DISPLAY_NAME} found ${member.name}'s synthetic super balance is ${money(member.superBalance)} in the ${member.investmentOption} option. Current contributions are ${(member.contributionRate * 100).toFixed(1)}% of salary. ${DEMO_BOUNDARY}`,
       {
         balance: member.superBalance,
         investmentOption: member.investmentOption,
         contributionRate: member.contributionRate,
+        guidance: RESPONSE_GUIDANCE,
       }
     );
   }
@@ -132,23 +161,62 @@ function callTool(name, args = {}) {
           : "strong";
 
     return textResult(
-      `If ${member.name} retires at ${retirementAge}, this simplified concept projection estimates a balance of ${money(projectedBalance)} and possible annual retirement income of about ${money(incomeToAge90)} to age 90. Confidence is ${confidence}. This is synthetic demo information, not financial advice.`,
-      { retirementAge, projectedBalance, estimatedAnnualIncome: incomeToAge90, confidence }
+      `${SERVICE_DISPLAY_NAME} ran a simplified concept projection. If ${member.name} retires at ${retirementAge}, the estimated balance is ${money(projectedBalance)} and possible annual retirement income is about ${money(incomeToAge90)} to age 90. Confidence is ${confidence}. A useful next step is to test spending needs and consider an adviser conversation before making a decision. ${DEMO_BOUNDARY}`,
+      { retirementAge, projectedBalance, estimatedAnnualIncome: incomeToAge90, confidence, guidance: RESPONSE_GUIDANCE }
     );
   }
 
   if (name === "explain_insurance") {
     return textResult(
-      `${member.name} has synthetic insurance cover of ${money(member.insurance.deathCover)} death cover, ${money(member.insurance.tpdCover)} TPD cover, and income protection of ${member.insurance.incomeProtection}. A key retirement question is whether this cover is still needed as work and debt reduce.`,
-      member.insurance
+      `${SERVICE_DISPLAY_NAME} found ${member.name} has synthetic insurance cover of ${money(member.insurance.deathCover)} death cover, ${money(member.insurance.tpdCover)} TPD cover, and income protection of ${member.insurance.incomeProtection}. A key retirement question is whether this cover is still needed as work, debt, and dependants change. ${DEMO_BOUNDARY}`,
+      { ...member.insurance, guidance: RESPONSE_GUIDANCE }
     );
   }
 
   if (name === "book_adviser") {
     const timeframe = args.preferredTimeframe || "the next two weeks";
     return textResult(
-      `I can offer ${member.name} a synthetic ART adviser appointment in ${timeframe}. Suggested reason: retirement-at-60 confidence check, income needs, insurance review, and contribution options.`,
-      { timeframe, bookingType: "Retirement confidence check" }
+      `${SERVICE_DISPLAY_NAME} can suggest a synthetic adviser appointment for ${member.name} in ${timeframe}. Suggested reason: retirement-at-60 confidence check, income needs, insurance review, and contribution options. ${DEMO_BOUNDARY}`,
+      { timeframe, bookingType: "Retirement confidence check", guidance: RESPONSE_GUIDANCE }
+    );
+  }
+
+  if (name === "model_part_time_transition") {
+    const partTimeSalaryPercent = Number(args.partTimeSalaryPercent);
+    const startAge = Number(args.startAge);
+    const retirementAge = Number(args.retirementAge);
+    const fullTimeYears = Math.max(0, startAge - member.age);
+    const partTimeYears = Math.max(0, retirementAge - Math.max(member.age, startAge));
+    const fullTimeContribution = member.annualSalary * member.contributionRate;
+    const partTimeContribution =
+      member.annualSalary * partTimeSalaryPercent * member.contributionRate;
+    const balanceAfterFullTime = Math.round(
+      member.superBalance * Math.pow(1.045, fullTimeYears) +
+        fullTimeContribution * ((Math.pow(1.045, fullTimeYears) - 1) / 0.045 || fullTimeYears)
+    );
+    const projectedBalance = Math.round(
+      balanceAfterFullTime * Math.pow(1.045, partTimeYears) +
+        partTimeContribution * ((Math.pow(1.045, partTimeYears) - 1) / 0.045 || partTimeYears)
+    );
+    const baseProjection = callTool("run_retirement_projection", {
+      retirementAge,
+    }).structuredContent.projectedBalance;
+    const balanceDifference = projectedBalance - baseProjection;
+    const estimatedAnnualIncome = Math.round(
+      projectedBalance / Math.max(1, 90 - retirementAge)
+    );
+
+    return textResult(
+      `${SERVICE_DISPLAY_NAME} modelled a simple part-time transition. If ${member.name} moves to ${(partTimeSalaryPercent * 100).toFixed(0)}% salary from age ${startAge} and fully retires at ${retirementAge}, the estimated balance is ${money(projectedBalance)}, about ${money(Math.abs(balanceDifference))} ${balanceDifference >= 0 ? "higher" : "lower"} than the straight retirement-at-${retirementAge} projection. Estimated annual retirement income is about ${money(estimatedAnnualIncome)} to age 90. This may trade some retirement income for better wellbeing before retirement. ${DEMO_BOUNDARY}`,
+      {
+        partTimeSalaryPercent,
+        startAge,
+        retirementAge,
+        projectedBalance,
+        balanceDifference,
+        estimatedAnnualIncome,
+        guidance: RESPONSE_GUIDANCE,
+      }
     );
   }
 
@@ -180,7 +248,8 @@ function handleRpc(message) {
       result: {
         protocolVersion: "2024-11-05",
         capabilities: { tools: {} },
-        serverInfo: { name: "artie-retirement-services", version: "0.1.0" },
+        serverInfo: { name: "artie-retirement-guide", version: "0.2.0" },
+        instructions: RESPONSE_GUIDANCE,
       },
     };
   }
@@ -225,7 +294,7 @@ const server = http.createServer((req, res) => {
   }
 
   if (req.method === "GET" && url.pathname === "/health") {
-    sendJson(res, 200, { ok: true, name: "ARTie Retirement Services" });
+    sendJson(res, 200, { ok: true, name: SERVICE_DISPLAY_NAME });
     return;
   }
 

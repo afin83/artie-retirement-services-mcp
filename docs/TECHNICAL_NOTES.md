@@ -48,6 +48,7 @@ The current demo member is:
 - `run_retirement_projection`
 - `explain_insurance`
 - `book_adviser`
+- `model_part_time_transition`
 
 ## Local tunnel command
 

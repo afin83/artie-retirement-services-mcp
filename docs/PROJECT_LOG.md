@@ -2,7 +2,7 @@
 
 ## Goal
 
-Create a proof of concept showing ARTie Retirement Services inside ChatGPT, rather than in a standalone website.
+Create a proof of concept showing ARTie Retirement Guide inside ChatGPT, rather than in a standalone website.
 
 The strategic message:
 
@@ -29,7 +29,7 @@ https://HOSTNAME/mcp
 
 - ChatGPT developer mode can add an unverified private connector.
 - The connector permission screen appears inside ChatGPT.
-- The app can be named `ARTie Retirement Services`.
+- The app can be named `ARTie Retirement Guide`.
 - ChatGPT can discover the tools exposed by the server.
 - ChatGPT can answer the demo prompt using synthetic ARTie data.
 
@@ -50,4 +50,4 @@ The important endpoint is `/mcp`, not `/sse`.
 - There is no authentication.
 - There is no real ART data.
 - The projection is intentionally simplified.
-- The current response style still needs tuning so ChatGPT says it checked ARTie, rather than speaking as ARTie.
+- Version 0.2.0 tunes the tool descriptions and tool results so ChatGPT is nudged to say it checked ARTie Retirement Guide rather than speaking as ARTie.

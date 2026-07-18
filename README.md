@@ -1,10 +1,10 @@
-# ARTie Retirement Services MCP Demo
+# ARTie Retirement Guide MCP Demo
 
-Synthetic MCP server for demonstrating an ARTie connector inside ChatGPT.
+Synthetic MCP server for demonstrating an ARTie Retirement Guide connector inside ChatGPT.
 
 This project proves the experience pattern:
 
-> A member asks a retirement question in ChatGPT. ChatGPT connects to ARTie Retirement Services. ARTie provides trusted retirement capabilities. ChatGPT answers in plain English.
+> A member asks a retirement question in ChatGPT. ChatGPT connects to ARTie Retirement Guide. ARTie provides trusted retirement capabilities. ChatGPT answers in plain English.
 
 The current data is synthetic only. This is not financial advice and does not connect to ART systems.
 
@@ -15,7 +15,7 @@ Working proof of concept:
 - Runs locally with Node.js.
 - Exposes a ChatGPT-compatible MCP endpoint at `/mcp`.
 - Can be exposed temporarily with Cloudflare Tunnel.
-- Has been successfully connected inside ChatGPT as `ARTie Retirement Services`.
+- Has been successfully connected inside ChatGPT as `ARTie Retirement Guide`.
 - ChatGPT can call the tools and answer the demo retirement question.
 
 ## Run locally
@@ -41,13 +41,13 @@ http://localhost:8787/health
 Name:
 
 ```text
-ARTie Retirement Services
+ARTie Retirement Guide
 ```
 
 Description:
 
 ```text
-Provides synthetic retirement information for the ARTie concept demo.
+Provides synthetic retirement guidance for the ARTie concept demo.
 ```
 
 Connection:
@@ -77,6 +77,7 @@ This server uses fake member data only. It is not financial advice and does not 
 - `run_retirement_projection`
 - `explain_insurance`
 - `book_adviser`
+- `model_part_time_transition`
 
 ## Temporary ChatGPT connection
 
