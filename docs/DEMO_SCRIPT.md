@@ -19,6 +19,8 @@ Using ARTie Retirement Guide, I am Mia and I am 58 and exhausted. Can I afford t
 Using ARTie Retirement Guide, what happens if I go part-time next year and retire at 60?
 ```
 
+Expected behaviour: ARTie Retirement Guide should model a simple default scenario if the member does not provide exact part-time salary or contribution assumptions.
+
 ```text
 Using ARTie Retirement Guide, should I review my insurance before I retire?
 ```

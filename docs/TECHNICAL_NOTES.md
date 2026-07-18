@@ -50,6 +50,8 @@ The current demo member is:
 - `book_adviser`
 - `model_part_time_transition`
 
+`model_part_time_transition` accepts optional inputs. If omitted, it assumes part-time starts next year at 60% salary and full retirement happens at the member's target retirement age.
+
 ## Local tunnel command
 
 ```powershell

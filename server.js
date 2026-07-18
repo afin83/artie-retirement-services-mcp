@@ -86,7 +86,7 @@ const tools = [
   },
   {
     name: "model_part_time_transition",
-    description: "Ask ARTie Retirement Guide to model a simple transition-to-retirement scenario, such as going part-time before retiring.",
+    description: "Ask ARTie Retirement Guide to model a simple transition-to-retirement scenario, such as going part-time before retiring. If the member does not provide details, assume part-time starts next year at 60% salary and full retirement happens at the stated target retirement age.",
     inputSchema: {
       type: "object",
       properties: {
@@ -103,7 +103,6 @@ const tools = [
           description: "Age when the member plans to fully retire.",
         },
       },
-      required: ["partTimeSalaryPercent", "startAge", "retirementAge"],
       additionalProperties: false,
     },
   },
@@ -182,9 +181,9 @@ function callTool(name, args = {}) {
   }
 
   if (name === "model_part_time_transition") {
-    const partTimeSalaryPercent = Number(args.partTimeSalaryPercent);
-    const startAge = Number(args.startAge);
-    const retirementAge = Number(args.retirementAge);
+    const partTimeSalaryPercent = Number(args.partTimeSalaryPercent || 0.6);
+    const startAge = Number(args.startAge || member.age + 1);
+    const retirementAge = Number(args.retirementAge || member.targetRetirementAge);
     const fullTimeYears = Math.max(0, startAge - member.age);
     const partTimeYears = Math.max(0, retirementAge - Math.max(member.age, startAge));
     const fullTimeContribution = member.annualSalary * member.contributionRate;
