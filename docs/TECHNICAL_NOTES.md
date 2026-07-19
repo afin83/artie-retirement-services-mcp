@@ -53,6 +53,8 @@ The current demo member is:
 
 `model_part_time_transition` accepts optional inputs. If omitted, it assumes part-time starts next year at 60% salary and full retirement happens at the member's target retirement age.
 
+`run_retirement_projection` also accepts optional part-time inputs so mobile clients that choose the projection tool can still model a part-time scenario.
+
 ## Local tunnel command
 
 ```powershell

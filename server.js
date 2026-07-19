@@ -48,13 +48,21 @@ const tools = [
   },
   {
     name: "run_retirement_projection",
-    description: "Ask ARTie Retirement Guide to run a simplified retirement projection for the synthetic member.",
+    description: "Ask ARTie Retirement Guide to run a simplified retirement projection for the synthetic member. Can also model going part-time before retirement if part-time details are supplied or implied. If the member asks about going part-time next year, assume 60% salary from age 59 unless stated otherwise.",
     inputSchema: {
       type: "object",
       properties: {
         retirementAge: {
           type: "number",
           description: "The age the member wants to retire.",
+        },
+        partTimeSalaryPercent: {
+          type: "number",
+          description: "Optional part-time salary as a decimal. Example: 0.6 means 60% of current salary.",
+        },
+        partTimeStartAge: {
+          type: "number",
+          description: "Optional age when part-time work starts.",
         },
       },
       required: ["retirementAge"],
@@ -159,12 +167,36 @@ function callTool(name, args = {}) {
 
   if (name === "run_retirement_projection") {
     const retirementAge = Number(args.retirementAge || member.targetRetirementAge);
+    const hasPartTimeScenario =
+      args.partTimeSalaryPercent !== undefined || args.partTimeStartAge !== undefined;
+    const partTimeSalaryPercent = Number(args.partTimeSalaryPercent || 0.6);
+    const partTimeStartAge = Number(args.partTimeStartAge || member.age + 1);
     const years = Math.max(0, retirementAge - member.age);
     const annualContribution = member.annualSalary * member.contributionRate;
-    const projectedBalance = Math.round(
-      member.superBalance * Math.pow(1.045, years) +
-        annualContribution * ((Math.pow(1.045, years) - 1) / 0.045 || years)
-    );
+    let projectedBalance;
+    let scenario = "Full-time to retirement";
+
+    if (hasPartTimeScenario) {
+      const fullTimeYears = Math.max(0, partTimeStartAge - member.age);
+      const partTimeYears = Math.max(0, retirementAge - Math.max(member.age, partTimeStartAge));
+      const partTimeContribution =
+        member.annualSalary * partTimeSalaryPercent * member.contributionRate;
+      const balanceAfterFullTime = Math.round(
+        member.superBalance * Math.pow(1.045, fullTimeYears) +
+          annualContribution * ((Math.pow(1.045, fullTimeYears) - 1) / 0.045 || fullTimeYears)
+      );
+      projectedBalance = Math.round(
+        balanceAfterFullTime * Math.pow(1.045, partTimeYears) +
+          partTimeContribution * ((Math.pow(1.045, partTimeYears) - 1) / 0.045 || partTimeYears)
+      );
+      scenario = `Part-time from age ${partTimeStartAge} at ${(partTimeSalaryPercent * 100).toFixed(0)}% salary`;
+    } else {
+      projectedBalance = Math.round(
+        member.superBalance * Math.pow(1.045, years) +
+          annualContribution * ((Math.pow(1.045, years) - 1) / 0.045 || years)
+      );
+    }
+
     const incomeToAge90 = Math.round(projectedBalance / Math.max(1, 90 - retirementAge));
     const confidence =
       retirementAge < 60
@@ -174,8 +206,17 @@ function callTool(name, args = {}) {
           : "strong";
 
     return textResult(
-      `${SERVICE_DISPLAY_NAME} ran a simplified concept projection. If ${member.name} retires at ${retirementAge}, the estimated balance is ${money(projectedBalance)} and possible annual retirement income is about ${money(incomeToAge90)} to age 90. Confidence is ${confidence}. A useful next step is to test spending needs and consider an adviser conversation before making a decision. ${DEMO_BOUNDARY}`,
-      { retirementAge, projectedBalance, estimatedAnnualIncome: incomeToAge90, confidence, guidance: RESPONSE_GUIDANCE }
+      `${SERVICE_DISPLAY_NAME} ran a simplified concept projection. Scenario: ${scenario}. If ${member.name} retires at ${retirementAge}, the estimated balance is ${money(projectedBalance)} and possible annual retirement income is about ${money(incomeToAge90)} to age 90. Confidence is ${confidence}. A useful next step is to test spending needs and consider an adviser conversation before making a decision. ${DEMO_BOUNDARY}`,
+      {
+        scenario,
+        retirementAge,
+        projectedBalance,
+        estimatedAnnualIncome: incomeToAge90,
+        confidence,
+        partTimeSalaryPercent: hasPartTimeScenario ? partTimeSalaryPercent : null,
+        partTimeStartAge: hasPartTimeScenario ? partTimeStartAge : null,
+        guidance: RESPONSE_GUIDANCE,
+      }
     );
   }
 
